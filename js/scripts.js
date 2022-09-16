@@ -6,7 +6,7 @@ $(document).ready(function () {
   L.tileLayer(
     "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
     {
-      attribution: "Vionna.ir",
+      attribution: "Ali Amiresmaeili",
       maxZoom: 18,
       id: "mapbox/streets-v11",
       tileSize: 512,
@@ -17,6 +17,7 @@ $(document).ready(function () {
   ).addTo(map_geo_location);
   map_geo_location.addControl(new L.Control.Fullscreen());
   var marker_map_1 = null;
+  var current_accuracy = null;
   function onMapClick(e) {
     if (marker_map_1 != null) map_geo_location.removeLayer(marker_map_1);
 
@@ -24,40 +25,43 @@ $(document).ready(function () {
       map_geo_location
     );
     marker_map_1.bindPopup("<b>نقطه مورد نظر</b>").openPopup();
-    $("#sup_main_Latlong").val(e.latlng.lat + "," + e.latlng.lng);
+    $("#map_latlng").val(e.latlng.lat + "," + e.latlng.lng);
   }
   map_geo_location.on("click", onMapClick);
 
   function onLocationFound(e) {
-    // if position defined, then remove the existing position marker and accuracy circle from the map
-    alert("موقعیت فعلی یافت شد");
-    console.log("location found");
-    console.log(e);
-    //if (current_position) {
-    //    map.removeLayer(current_position);
-    //    map.removeLayer(current_accuracy);
-    //}
+    // alert("موقعیت فعلی یافت شد");
+    console.log("location found", e);
 
-    //var radius = e.coords.accuracy / 10;
-    //const latlng = {
-    //    lat: e.coords.latitude,
-    //    lng: e.coords.longitude
-    //};
+    if (marker_map_1 != null) map_geo_location.removeLayer(marker_map_1);
+    if (current_accuracy != null)
+      map_geo_location.removeLayer(current_accuracy);
 
-    //current_position = L.marker(latlng).addTo(map);
-    //current_accuracy = L.circle(latlng, radius).addTo(map);
-    //map.setView(latlng);
+    var radius = e.coords.accuracy / 10;
+    var latlng = {
+      lat: e.coords.latitude,
+      lng: e.coords.longitude,
+    };
+
+    $("#map_latlng").val(latlng.lat + "," + latlng.lng);
+
+    marker_map_1 = L.marker([latlng.lat, latlng.lng]).addTo(map_geo_location);
+    marker_map_1.bindPopup("<b>مکان شما</b>").openPopup();
+
+    current_accuracy = L.circle(latlng, radius).addTo(map_geo_location);
+
+    map_geo_location.setView(latlng);
   }
 
   function onLocationError(e) {
-    console.error("Location found error", e);
-    alert(
-      "مشکل در دریافت خودکار موقعیت مکانی ، لطفا موقعیت مکانی خود را انتخاب نمایید"
-    );
+    console.error("Location not found error", e);
+    // alert(
+    //   "مشکل در دریافت خودکار موقعیت مکانی ، لطفا موقعیت مکانی خود را انتخاب نمایید"
+    // );
   }
 
   navigator.geolocation.watchPosition(onLocationFound, onLocationError, {
-    maximumAge: 10000,
-    timeout: 2000,
+    maximumAge: 100000,
+    timeout: 200000,
   });
 });
