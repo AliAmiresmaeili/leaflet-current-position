@@ -60,8 +60,15 @@ $(document).ready(function () {
     // );
   }
 
-  navigator.geolocation.watchPosition(onLocationFound, onLocationError, {
-    maximumAge: 100000,
-    timeout: 200000,
-  });
+  // navigator.geolocation.watchPosition(onLocationFound, onLocationError, {
+  //   // maximumAge: 100000,
+  //   // timeout: 200000,
+  //   //enableHighAccuracy: true,
+  // });
+
+  navigator.geolocation.getCurrentPosition(
+    onLocationFound,
+    onLocationError,
+    {}
+  );
 });
